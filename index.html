@@ -1,0 +1,1440 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard Bloom × Miller – exemplos práticos e instrumentos by EducaMed Brasil</title>
+  <style>
+    :root{
+      /* Base */
+      --bg:#0b1020;
+      --panelA:rgba(255,255,255,.04);
+      --panelB:rgba(255,255,255,.02);
+      --ink:#e9eefc;
+      --muted:rgba(233,238,252,.72);
+      --border:rgba(233,238,252,.12);
+      --shadow:0 18px 45px rgba(0,0,0,.35);
+      --radius:18px;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+
+      /* EducaMed accents (aprox. do anexo) */
+      --blue:#6ea8fe;
+      --green:#22c55e;   /* detalhe */
+      --gold:#c8a14d;    /* detalhe */
+
+      --good:rgba(34,197,94,.85);
+      --goldA:rgba(200,161,77,.85);
+      --blueA:rgba(110,168,254,.85);
+      --blueB:rgba(110,168,254,.20);
+      --greenB:rgba(34,197,94,.18);
+      --goldB:rgba(200,161,77,.18);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:
+        radial-gradient(1100px 600px at 18% -10%, rgba(110,168,254,.22), transparent 60%),
+        radial-gradient(950px 520px at 85% 10%, rgba(34,197,94,.16), transparent 60%),
+        radial-gradient(900px 600px at 55% 120%, rgba(200,161,77,.14), transparent 60%),
+        var(--bg);
+    }
+
+    .wrap{max-width:1320px;margin:0 auto;padding:18px 18px 44px}
+    header{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+      padding:18px 0 12px;
+    }
+    h1{margin:0;font-size:20px;letter-spacing:.2px}
+    .sub{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.35}
+    .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+
+    .btn{
+      border:1px solid rgba(34,197,94,.35);
+      background:rgba(34,197,94,.12);
+      color:var(--ink);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:transform .08s ease, background .12s ease, border-color .12s ease;
+      font-size:13px;
+      display:inline-flex;align-items:center;gap:8px;
+      user-select:none;
+    }
+    .btn:hover{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.55)}
+    .btn:active{transform:translateY(1px)}
+
+    .pill{
+      font-family:var(--mono);
+      font-size:11px;
+      color:rgba(233,238,252,.86);
+      border:1px solid var(--border);
+      padding:6px 10px;border-radius:999px;
+      background:rgba(255,255,255,.03);
+      max-width:520px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+    @media(min-width:980px){
+      .grid.two{grid-template-columns:1fr 1fr}
+      .grid.three{grid-template-columns:1fr 1fr 1fr}
+    }
+
+    .panel{
+      background:linear-gradient(180deg, var(--panelA), var(--panelB));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panel .hd{
+      padding:12px 14px;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      background:rgba(0,0,0,.06);
+    }
+    .panel .hd h2{
+      margin:0;font-size:13px;letter-spacing:.2px;color:rgba(233,238,252,.92);
+      display:flex;align-items:center;gap:10px;
+    }
+    .mark{
+      width:10px;height:10px;border-radius:99px;
+      background:linear-gradient(180deg, var(--goldA), rgba(200,161,77,.25));
+      box-shadow:0 0 0 3px rgba(200,161,77,.10);
+    }
+    .panel .bd{padding:14px}
+
+    .filters{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:980px){
+      .filters{grid-template-columns:1.25fr 1fr 1fr 1fr 1fr 1.15fr}
+    }
+
+    input[type="text"], select{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--ink);
+      outline:none;
+      font-size:13px;
+    }
+    input[type="text"]::placeholder{color:rgba(233,238,252,.45)}
+    select option{background:#0b1020;color:var(--ink)}
+    .hint{font-size:12px;color:var(--muted);line-height:1.4}
+
+    .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    @media(min-width:980px){.cards{grid-template-columns:repeat(4,1fr)}}
+    .card{
+      background:rgba(0,0,0,.10);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px
+    }
+    .label{font-size:12px;color:var(--muted)}
+    .metric{font-size:20px;font-weight:650;letter-spacing:.3px;margin-top:6px}
+
+    .kpiRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+    .badge{
+      font-family:var(--mono);
+      font-size:11px;
+      border:1px solid var(--border);
+      padding:4px 8px;border-radius:999px;
+      background:rgba(255,255,255,.03);
+      color:rgba(233,238,252,.85);
+      display:inline-flex;align-items:center;gap:6px
+    }
+    .dot{width:8px;height:8px;border-radius:99px;display:inline-block}
+    .dot.blue{background:var(--blue)}
+    .dot.green{background:var(--green)}
+    .dot.gold{background:var(--gold)}
+
+    .chartWrap{position:relative;height:320px}
+    .chartWrap.tall{height:360px}
+    canvas{
+      width:100%;height:100%;
+      display:block;
+      background:rgba(0,0,0,.10);
+      border-radius:14px;
+      border:1px solid var(--border);
+    }
+    .tooltip{
+      position:absolute;pointer-events:none;
+      background:rgba(10,14,28,.92);
+      border:1px solid rgba(233,238,252,.18);
+      padding:8px 10px;border-radius:12px;
+      font-size:12px;color:rgba(233,238,252,.95);
+      box-shadow:0 14px 34px rgba(0,0,0,.35);
+      transform:translate(10px, 10px);
+      display:none;max-width:360px;line-height:1.3;
+    }
+
+    .tableWrap{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.10)}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    thead th{
+      position:sticky;top:0;
+      background:rgba(17,26,51,.92);
+      backdrop-filter:blur(6px);
+      border-bottom:1px solid var(--border);
+      text-align:left;
+      padding:10px 10px;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    thead th .sort{font-family:var(--mono);font-size:11px;opacity:.75;margin-left:6px}
+    tbody td{
+      border-bottom:1px solid rgba(233,238,252,.08);
+      padding:10px 10px;vertical-align:top;
+      color:rgba(233,238,252,.88);
+    }
+    tbody tr:hover td{background:rgba(110,168,254,.08)}
+    tbody tr.sel td{background:rgba(200,161,77,.12)}
+    .pager{
+      display:flex;flex-wrap:wrap;gap:10px;
+      align-items:center;justify-content:space-between;margin-top:10px
+    }
+    .pager .left,.pager .right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .muted{color:var(--muted)}
+
+    .tag{
+      display:inline-flex;align-items:center;gap:6px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      padding:4px 8px;border-radius:999px;
+      font-size:11px;font-family:var(--mono);
+      white-space:nowrap;
+    }
+
+    .mapBox{
+      border:1px solid rgba(200,161,77,.22);
+      background:linear-gradient(180deg, rgba(200,161,77,.10), rgba(0,0,0,.10));
+      border-radius:14px;
+      padding:12px;
+    }
+    .mapTitle{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .mapTitle b{font-size:13px}
+    .mapGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    @media(min-width:980px){.mapGrid{grid-template-columns:1.4fr 1fr}}
+    .mapK{font-size:12px;color:var(--muted);margin-top:6px}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .chip{
+      border:1px solid rgba(34,197,94,.25);
+      background:rgba(34,197,94,.10);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      color:rgba(233,238,252,.92);
+      display:inline-flex;align-items:center;gap:8px;
+    }
+    .chip .mini{
+      width:8px;height:8px;border-radius:99px;background:var(--gold);
+      box-shadow:0 0 0 3px rgba(200,161,77,.10);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Dashboard Bloom × Miller – exemplos práticos e instrumentos by EducaMed Brasil</h1>
+        <div class="sub">Alinhamento construtivo: objetivo ↔ método ↔ avaliação ↔ rubrica</div>
+        <div class="sub" style="opacity:.9;margin-top:8px;">
+          <span class="pill" id="fileInfo">Base pública embutida • 100 registros (50 Medicina, 35 Direito, 15 Multiprofissional Saúde)</span>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="btnReset">↺ Limpar filtros</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="hd">
+          <h2><span class="mark"></span>Filtros</h2>
+          <div class="kpiRow">
+            <span class="badge" id="rowsInfo"><span class="dot blue"></span>—</span>
+            <span class="badge" id="areasInfo"><span class="dot gold"></span>—</span>
+            <span class="badge" id="updatedInfo"><span class="dot green"></span>—</span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="filters">
+            <div>
+              <input id="globalSearch" type="text" placeholder="Buscar texto (ex.: OSCE, SUS, mediação, LGPD, PTS...)" />
+              <div class="hint" style="margin-top:6px;">Clique em barras/fatias dos gráficos para filtrar. Clique numa linha da tabela para ver o “Mapa objetivo → instrumento”.</div>
+            </div>
+            <div><select id="filterArea"><option value="">Filtrar por área</option></select></div>
+            <div><select id="filterBloom"><option value="">Filtrar por Bloom</option></select></div>
+            <div><select id="filterMiller"><option value="">Filtrar por Miller</option></select></div>
+            <div><select id="filterDim"><option value="">Filtrar por dimensão</option></select></div>
+            <div><select id="filterRisk"><option value="">Risco/impacto</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="hd"><h2><span class="mark"></span>Resumo</h2></div>
+        <div class="bd">
+          <div class="cards">
+            <div class="card"><div class="label">Registros (filtrados)</div><div class="metric" id="mVisible">—</div></div>
+            <div class="card"><div class="label">Registros (total)</div><div class="metric" id="mTotal">—</div></div>
+            <div class="card"><div class="label">Competências DCN (distintas)</div><div class="metric" id="mComp">—</div></div>
+            <div class="card"><div class="label">Instrumentos (distintos)</div><div class="metric" id="mInstr">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <div class="panel">
+          <div class="hd"><h2><span class="mark"></span>Bloom (distribuição)</h2></div>
+          <div class="bd">
+            <div class="chartWrap">
+              <canvas id="chartBloom"></canvas>
+              <div class="tooltip" id="ttBloom"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="hd"><h2><span class="mark"></span>Miller (distribuição — pizza)</h2></div>
+          <div class="bd">
+            <div class="chartWrap">
+              <canvas id="chartMiller"></canvas>
+              <div class="tooltip" id="ttMiller"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <div class="panel">
+          <div class="hd"><h2><span class="mark"></span>Área (distribuição)</h2></div>
+          <div class="bd">
+            <div class="chartWrap">
+              <canvas id="chartArea"></canvas>
+              <div class="tooltip" id="ttArea"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="hd"><h2><span class="mark"></span>Top instrumentos (frequência)</h2></div>
+          <div class="bd">
+            <div class="chartWrap tall">
+              <canvas id="chartInstr"></canvas>
+              <div class="tooltip" id="ttInstr"></div>
+            </div>
+            <div class="hint" style="margin-top:8px;">Clique em um instrumento para filtrar.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="hd"><h2><span class="mark"></span>Mapa objetivo → instrumento (sugestões automáticas)</h2></div>
+        <div class="bd">
+          <div class="mapBox">
+            <div class="mapTitle">
+              <div>
+                <b id="mapObjTitle">Selecione um registro na tabela</b>
+                <div class="mapK" id="mapObjMeta">—</div>
+              </div>
+              <div class="badge"><span class="dot gold"></span><span id="mapRule">Regra: —</span></div>
+            </div>
+
+            <div class="mapGrid">
+              <div>
+                <div class="mapK"><b>Objetivo (formato observável)</b></div>
+                <div id="mapObjective" style="margin-top:6px; line-height:1.45; color:rgba(233,238,252,.92);">—</div>
+
+                <div class="mapK" style="margin-top:10px;"><b>Instrumento proposto no registro</b></div>
+                <div style="margin-top:8px;">
+                  <span class="tag" id="mapInstrument">—</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="mapK"><b>Sugestões automáticas (Bloom + Miller + Área)</b></div>
+                <div class="chips" id="mapSuggestions"></div>
+                <div class="hint" style="margin-top:10px;">
+                  As sugestões são heurísticas para apoiar o desenho de avaliação (objetivo → método → evidência/rúbrica).
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="hd"><h2><span class="mark"></span>Tabela detalhada (busca, filtros e ordenação)</h2></div>
+        <div class="bd">
+          <div class="tableWrap">
+            <table id="dataTable">
+              <thead><tr id="theadRow"></tr></thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="pager">
+            <div class="left">
+              <button class="btn" id="prevPage" style="background:rgba(110,168,254,.12);border-color:rgba(110,168,254,.35)">←</button>
+              <button class="btn" id="nextPage" style="background:rgba(110,168,254,.12);border-color:rgba(110,168,254,.35)">→</button>
+              <span class="muted" id="pageInfo">Página —</span>
+            </div>
+            <div class="right">
+              <label class="muted">Linhas/página</label>
+              <select id="pageSize" style="width:120px;">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              <span class="muted" id="sortInfo">Ordenação: —</span>
+            </div>
+          </div>
+
+          <div class="hint" style="margin-top:12px;">
+            <b>Nota:</b> este dashboard foi pensado para consulta pública (GitHub Pages). Atualização da base pode ser feita editando a função <span style="font-family:var(--mono)">buildDataset()</span>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* =========================================================
+   1) Dataset embutido (100 registros)
+      - 50 Medicina
+      - 35 Direito
+      - 15 Multiprofissional Saúde
+   ========================================================= */
+
+const BLOOM = ["Lembrar","Compreender","Aplicar","Analisar","Avaliar","Criar"];
+const MILLER = ["Sabe","Sabe como","Mostra como","Faz"];
+const DIMENSIONS = ["Factual","Conceitual","Procedimental","Metacognitivo"];
+const RISK = ["Baixo","Médio","Alto"];
+
+/** dimension heuristic aligned with Bloom */
+function guessDimension(bloom){
+  switch(bloom){
+    case "Lembrar": return "Factual";
+    case "Compreender": return "Conceitual";
+    case "Aplicar": return "Procedimental";
+    case "Analisar": return "Conceitual";
+    case "Avaliar": return "Metacognitivo";
+    case "Criar": return "Metacognitivo";
+    default: return "Conceitual";
+  }
+}
+
+/** risk/impact heuristic aligned with Miller */
+function guessRisk(miller){
+  switch(miller){
+    case "Sabe": return "Baixo";
+    case "Sabe como": return "Médio";
+    case "Mostra como": return "Médio";
+    case "Faz": return "Alto";
+    default: return "Médio";
+  }
+}
+
+/** compact helpers */
+function cap(s){ return s ? s[0].toUpperCase()+s.slice(1) : s; }
+function pick(arr, i){ return arr[i % arr.length]; }
+
+/** instrument suggestion map (Bloom + Miller + area) */
+function suggestInstruments(area, bloom, miller){
+  // base by Miller
+  let base = [];
+  if(miller==="Sabe"){
+    base = ["Prova objetiva (MCQ)", "Resposta curta (SAQ)", "Quiz formativo", "Mapa conceitual", "Oral estruturado"];
+  } else if(miller==="Sabe como"){
+    base = ["Estudo de caso (CBD)", "Questão discursiva estruturada", "Script Concordance Test (SCT)", "Seminário com rubrica", "Análise de guideline/artigo"];
+  } else if(miller==="Mostra como"){
+    base = ["OSCE/OSPE", "Simulação realística", "Role-play com checklist", "Prova prática estruturada", "Mini-CEX em simulação"];
+  } else if(miller==="Faz"){
+    base = ["Mini-CEX (campo)", "DOPS", "Avaliação 360°", "Portfólio + feedback", "Observação direta no serviço"];
+  }
+
+  // refine by Bloom
+  const refine = [];
+  if(bloom==="Lembrar") refine.push("Prova objetiva (MCQ)", "Flashcards/Quiz");
+  if(bloom==="Compreender") refine.push("Mapa conceitual", "Explicação oral estruturada");
+  if(bloom==="Aplicar") refine.push("Estudo de caso (CBD)", "Prova prática estruturada");
+  if(bloom==="Analisar") refine.push("Discussão crítica (rubrica)", "Análise de artigo/precedente");
+  if(bloom==="Avaliar") refine.push("Rubrica analítica (julgamento)", "Checklist + justificativa");
+  if(bloom==="Criar") refine.push("Projeto aplicado", "Portfólio (produto final)");
+
+  // area-specific
+  const areaAdd = [];
+  if(area==="Medicina"){
+    areaAdd.push("OSCE/OSPE", "Mini-CEX", "DOPS", "Checklist de comunicação (SPIKES)", "Prova de progresso");
+  } else if(area==="Multiprofissional Saúde"){
+    areaAdd.push("PTS (Plano Terapêutico Singular) com rubrica", "Reunião de caso interprofissional (checklist)", "Plano educativo com indicadores", "A3 (Plano de ação) com rubrica");
+  } else if(area==="Direito"){
+    areaAdd.push("Peça prática (rubrica)", "Audiência simulada (checklist)", "Sustentação oral (rubrica)", "Mediação/Negociação simulada", "Parecer jurídico (rubrica)");
+  }
+
+  // merge + unique + return top 5
+  const merged = [...refine, ...base, ...areaAdd];
+  const uniq = [];
+  const seen = new Set();
+  for(const x of merged){
+    const k = x.toLowerCase();
+    if(!seen.has(k)){
+      seen.add(k);
+      uniq.push(x);
+    }
+  }
+  return uniq.slice(0,5);
+}
+
+/** choose a representative instrument for the record (variety) */
+function pickInstrument(area, bloom, miller, idx){
+  const sug = suggestInstruments(area,bloom,miller);
+  // use deterministic selection for variety
+  return sug[idx % Math.min(3, sug.length)];
+}
+
+/** evidence/rubric heuristic based on instrument */
+function evidenceForInstrument(inst){
+  const s = inst.toLowerCase();
+  if(s.includes("osce") || s.includes("ospe") || s.includes("simulação") || s.includes("role-play") || s.includes("prova prática")){
+    return "Checklist + rubrica (desempenho)";
+  }
+  if(s.includes("mini-cex")){
+    return "Mini-CEX (âncoras) + feedback";
+  }
+  if(s.includes("dops")){
+    return "Checklist DOPS + feedback";
+  }
+  if(s.includes("360")){
+    return "Formulário 360° + síntese reflexiva";
+  }
+  if(s.includes("portfólio") || s.includes("portfolio")){
+    return "Rubrica de portfólio + devolutiva";
+  }
+  if(s.includes("peça") || s.includes("parecer") || s.includes("sustentação")){
+    return "Rubrica analítica (argumentação e técnica)";
+  }
+  if(s.includes("estudo de caso") || s.includes("cbd") || s.includes("discursiva")){
+    return "Rubrica analítica (raciocínio e decisão)";
+  }
+  if(s.includes("mcq") || s.includes("quiz") || s.includes("saq") || s.includes("prova")){
+    return "Gabarito comentado + critérios";
+  }
+  return "Rubrica/critério explícito + feedback";
+}
+
+/** example task heuristic */
+function exampleTask(area, bloom, miller, objective, instrument){
+  if(area==="Direito"){
+    if(instrument.toLowerCase().includes("mediação") || instrument.toLowerCase().includes("negociação")){
+      return "Conduzir sessão simulada com proposta de acordo e registro de consensos";
+    }
+    if(instrument.toLowerCase().includes("peça")){
+      return "Elaborar peça com fundamentos, pedidos, provas e estratégia processual";
+    }
+    if(instrument.toLowerCase().includes("parecer")){
+      return "Emitir parecer estruturado com norma, precedente e conclusão justificadas";
+    }
+    if(instrument.toLowerCase().includes("sustentação")){
+      return "Sustentação oral com tese, precedentes e refutação de objeções";
+    }
+    return "Resolver caso prático e fundamentar em normas e precedentes";
+  }
+
+  if(area==="Multiprofissional Saúde"){
+    if(instrument.toLowerCase().includes("pts")){
+      return "Construir PTS com metas SMART, responsáveis e monitoramento";
+    }
+    if(instrument.toLowerCase().includes("a3")){
+      return "Plano A3 com problema, causa-raiz, ações e indicadores";
+    }
+    if(instrument.toLowerCase().includes("reunião de caso")){
+      return "Apresentar caso e pactuar plano interprofissional com SBAR";
+    }
+    return "Plano educativo/intervenção em território com indicadores";
+  }
+
+  // Medicina
+  if(instrument.toLowerCase().includes("osce")){
+    return "Estação OSCE com checklist (história/exame/conduta/comunicação)";
+  }
+  if(instrument.toLowerCase().includes("mini-cex")){
+    return "Mini-CEX no atendimento: foco em raciocínio, comunicação e segurança";
+  }
+  if(instrument.toLowerCase().includes("dops")){
+    return "DOPS de procedimento (técnica asséptica, segurança e documentação)";
+  }
+  if(instrument.toLowerCase().includes("prova objetiva")){
+    return "Itens de múltipla escolha alinhados ao objetivo e nível Bloom";
+  }
+  if(instrument.toLowerCase().includes("estudo de caso")){
+    return "Vinheta clínica com decisão diagnóstica/terapêutica e justificativa";
+  }
+  return "Tarefa alinhada ao objetivo com critérios explícitos";
+}
+
+/** build 100 records deterministically */
+function buildDataset(){
+  const rows = [];
+
+  // --- MEDICINA (50) ---
+  const medCompetencies = [
+    "Atenção integral à saúde com enfoque no SUS e necessidades individuais/coletivas",
+    "Raciocínio clínico e tomada de decisão baseada em evidências",
+    "Comunicação centrada na pessoa/família e decisão compartilhada",
+    "Segurança do paciente e gestão de riscos assistenciais",
+    "Trabalho em equipe, liderança e coordenação do cuidado",
+    "Ética, profissionalismo e responsabilidade social",
+    "Promoção da saúde e prevenção de agravos no território",
+    "Gestão do cuidado em rede (RAS) e longitudinalidade",
+    "Educação permanente e aprendizagem ao longo da vida"
+  ];
+  const medContexts = ["APS/território","Ambulatório","Enfermaria","Urgência/Emergência","Centro cirúrgico (simulação)","Simulação/OSCE","Interconsulta/Equipe","Teleatendimento (simulado)"];
+  const medObjectiveStems = [
+    "identificar sinais de alerta e condutas imediatas",
+    "explicar mecanismos fisiopatológicos e implicações clínicas",
+    "aplicar escore/critério para estratificação de risco e decisão",
+    "analisar vieses, evidências e alternativas de manejo",
+    "avaliar plano terapêutico quanto a segurança, efetividade e preferências",
+    "criar plano de cuidado individualizado com metas e monitoramento"
+  ];
+
+  for(let i=0;i<50;i++){
+    const area="Medicina";
+    const bloom = pick(BLOOM, i);
+    const miller = pick(MILLER, i*2 + 1);
+    const dim = guessDimension(bloom);
+    const comp = pick(medCompetencies, i);
+    const ctx = pick(medContexts, i*3);
+    const risk = guessRisk(miller);
+
+    const stem = pick(medObjectiveStems, i + (bloom==="Criar"?2:0));
+    const objective = (bloom==="Lembrar")
+      ? `Listar/recordar condutas essenciais para ${stem} em cenário frequente`
+      : (bloom==="Compreender")
+      ? `Compreender e explicar como ${stem} se relaciona ao caso apresentado`
+      : (bloom==="Aplicar")
+      ? `Aplicar protocolo/critério para ${stem} em vinheta clínica`
+      : (bloom==="Analisar")
+      ? `Analisar caso clínico e justificar escolhas para ${stem} com base em evidências`
+      : (bloom==="Avaliar")
+      ? `Avaliar criticamente alternativas para ${stem}, considerando riscos e preferências`
+      : `Criar plano/algoritmo para ${stem}, com critérios e monitoramento`;
+
+    const instrument = pickInstrument(area,bloom,miller,i);
+    const evidence = evidenceForInstrument(instrument);
+    const example = exampleTask(area,bloom,miller,objective,instrument);
+
+    rows.push({
+      "Área": area,
+      "Competência (DCN)": comp,
+      "Bloom": bloom,
+      "Dimensão": dim,
+      "Objetivo (formato observável)": objective,
+      "Miller": miller,
+      "Instrumento": instrument,
+      "Exemplo de item/tarefa": example,
+      "Evidência/Rúbrica": evidence,
+      "Contexto": ctx,
+      "Risco/Impacto": risk
+    });
+  }
+
+  // --- DIREITO (35) ---
+  const lawCompetencies = [
+    "Interpretação, argumentação e aplicação do Direito com base em normas e precedentes",
+    "Atuação ética, responsabilidade profissional e compromisso com direitos humanos",
+    "Resolução adequada de conflitos (mediação/negociação/conc.) e comunicação",
+    "Pesquisa jurídica, escrita e fundamentação técnico-jurídica",
+    "Raciocínio jurídico crítico e tomada de decisão",
+    "Atuação prática no NPJ/Clínica jurídica com atendimento qualificado"
+  ];
+  const lawContexts = ["Sala de aula","NPJ/Clínica jurídica","Prática forense (simulada)","Consultivo/Compliance","Direitos humanos (casos)","Audiência simulada"];
+  const lawStems = [
+    "responsabilidade civil e nexo causal",
+    "devido processo legal e garantias",
+    "LGPD e proteção de dados em casos práticos",
+    "mediação e construção de acordos",
+    "análise de precedentes e ratio decidendi",
+    "produção de peça processual e estratégia"
+  ];
+
+  for(let i=0;i<35;i++){
+    const area="Direito";
+    const bloom = pick(BLOOM, i+1);
+    const miller = pick(MILLER, i*3);
+    const dim = guessDimension(bloom);
+    const comp = pick(lawCompetencies, i);
+    const ctx = pick(lawContexts, i*2);
+    const risk = (miller==="Faz") ? "Alto" : (miller==="Mostra como" ? "Médio" : "Baixo");
+
+    const stem = pick(lawStems, i);
+    const objective = (bloom==="Lembrar")
+      ? `Recordar requisitos/elementos centrais de ${stem}`
+      : (bloom==="Compreender")
+      ? `Explicar fundamentos e estrutura lógica de ${stem}`
+      : (bloom==="Aplicar")
+      ? `Aplicar técnica jurídica para resolver caso envolvendo ${stem}`
+      : (bloom==="Analisar")
+      ? `Analisar caso e identificar problemas jurídicos, argumentos e precedentes em ${stem}`
+      : (bloom==="Avaliar")
+      ? `Avaliar criticamente alternativas de atuação e riscos em ${stem}`
+      : `Criar produto jurídico (tese/peça/roteiro) consistente para ${stem}`;
+
+    const instrument = pickInstrument(area,bloom,miller,i+7);
+    const evidence = evidenceForInstrument(instrument);
+    const example = exampleTask(area,bloom,miller,objective,instrument);
+
+    rows.push({
+      "Área": area,
+      "Competência (DCN)": comp,
+      "Bloom": bloom,
+      "Dimensão": dim,
+      "Objetivo (formato observável)": objective,
+      "Miller": miller,
+      "Instrumento": instrument,
+      "Exemplo de item/tarefa": example,
+      "Evidência/Rúbrica": evidence,
+      "Contexto": ctx,
+      "Risco/Impacto": risk
+    });
+  }
+
+  // --- MULTIPROFISSIONAL SAÚDE (15) ---
+  const mpCompetencies = [
+    "Trabalho interprofissional colaborativo e cuidado centrado na pessoa",
+    "Comunicação interprofissional e segurança do paciente",
+    "Planejamento do cuidado e gestão em rede (RAS)",
+    "Promoção da saúde e educação em saúde no território",
+    "Ética e tomada de decisão compartilhada",
+    "Matriciamento e coordenação do cuidado em condições complexas"
+  ];
+  const mpContexts = ["Equipe multiprofissional","APS/CAPS","Hospital (linha de cuidado)","Território/escola","Reunião de caso","RAS (referência/contrarreferência)"];
+  const mpStems = [
+    "plano terapêutico singular (PTS)",
+    "matriciamento em saúde mental",
+    "SBAR e handoff seguro",
+    "intervenção educativa com indicadores",
+    "gestão de risco e barreiras de prevenção",
+    "linha de cuidado (condição crônica)"
+  ];
+
+  for(let i=0;i<15;i++){
+    const area="Multiprofissional Saúde";
+    const bloom = pick(BLOOM, i+2);
+    const miller = pick(MILLER, i*2);
+    const dim = guessDimension(bloom);
+    const comp = pick(mpCompetencies, i);
+    const ctx = pick(mpContexts, i*3);
+    const risk = guessRisk(miller);
+
+    const stem = pick(mpStems, i);
+    const objective = (bloom==="Lembrar")
+      ? `Recordar passos essenciais de ${stem} e critérios de qualidade`
+      : (bloom==="Compreender")
+      ? `Explicar racional e papéis profissionais em ${stem}`
+      : (bloom==="Aplicar")
+      ? `Aplicar ${stem} em caso multiprofissional com responsabilidades pactuadas`
+      : (bloom==="Analisar")
+      ? `Analisar fluxo/rede e pontos críticos ao executar ${stem}`
+      : (bloom==="Avaliar")
+      ? `Avaliar efetividade/segurança de ${stem} usando indicadores e feedback`
+      : `Criar proposta interprofissional para ${stem} com metas e monitoramento`;
+
+    const instrument = pickInstrument(area,bloom,miller,i+13);
+    const evidence = evidenceForInstrument(instrument);
+    const example = exampleTask(area,bloom,miller,objective,instrument);
+
+    rows.push({
+      "Área": area,
+      "Competência (DCN)": comp,
+      "Bloom": bloom,
+      "Dimensão": dim,
+      "Objetivo (formato observável)": objective,
+      "Miller": miller,
+      "Instrumento": instrument,
+      "Exemplo de item/tarefa": example,
+      "Evidência/Rúbrica": evidence,
+      "Contexto": ctx,
+      "Risco/Impacto": risk
+    });
+  }
+
+  // sanity: ensure counts
+  // Medicine 50, Law 35, MP 15 => 100
+  return rows;
+}
+
+/* =========================================================
+   2) Dashboard core (filters, charts, table, map panel)
+   ========================================================= */
+
+const state = {
+  data: [],
+  columns: [
+    "Área","Competência (DCN)","Bloom","Dimensão","Objetivo (formato observável)","Miller",
+    "Instrumento","Exemplo de item/tarefa","Evidência/Rúbrica","Contexto","Risco/Impacto"
+  ],
+  filtered: [],
+  sort: { col: null, dir: "asc" },
+  page: 1,
+  pageSize: 25,
+  filters: { q:"", area:"", bloom:"", miller:"", dim:"", risk:"", instr:"" },
+  selectedIndex: -1
+};
+
+function setText(id, txt){ const el=document.getElementById(id); if(el) el.textContent=String(txt); }
+function nowStr(){ return new Date().toLocaleString("pt-BR"); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+function uniqueValues(arr){
+  const s=new Set();
+  for(const v of arr){ const t=String(v??"").trim(); if(t) s.add(t); }
+  return Array.from(s).sort((a,b)=>a.localeCompare(b,"pt-BR"));
+}
+function includesInsensitive(h,n){ return String(h??"").toLowerCase().includes(String(n??"").toLowerCase()); }
+function fillSelect(id, values){
+  const el=document.getElementById(id); if(!el) return;
+  const first = el.querySelector("option")?.outerHTML || "";
+  el.innerHTML = first;
+  for(const v of values){
+    const opt=document.createElement("option");
+    opt.value=v; opt.textContent=v;
+    el.appendChild(opt);
+  }
+}
+function setSelectValue(id, value){
+  const el=document.getElementById(id); if(!el) return;
+  el.value=value || "";
+}
+
+function applyFilters(){
+  const f = state.filters;
+  const cols = state.columns;
+
+  state.filtered = state.data.filter(r=>{
+    if(f.q?.trim()){
+      const q=f.q.trim().toLowerCase();
+      let hit=false;
+      for(const c of cols){
+        if(String(r[c]??"").toLowerCase().includes(q)){ hit=true; break; }
+      }
+      if(!hit) return false;
+    }
+    if(f.area && String(r["Área"]??"")!==f.area) return false;
+    if(f.bloom && String(r["Bloom"]??"")!==f.bloom) return false;
+    if(f.miller && String(r["Miller"]??"")!==f.miller) return false;
+    if(f.dim && String(r["Dimensão"]??"")!==f.dim) return false;
+    if(f.risk && String(r["Risco/Impacto"]??"")!==f.risk) return false;
+    if(f.instr && String(r["Instrumento"]??"")!==f.instr) return false;
+    return true;
+  });
+
+  const maxPage=Math.max(1, Math.ceil(state.filtered.length/state.pageSize));
+  if(state.page>maxPage) state.page=1;
+
+  // ensure selected row remains valid in filtered view
+  if(state.filtered.length===0){
+    state.selectedIndex=-1;
+  } else if(state.selectedIndex<0 || state.selectedIndex>=state.filtered.length){
+    state.selectedIndex=0;
+  }
+}
+
+function sortData(data){
+  const {col,dir}=state.sort;
+  if(!col) return data;
+  const factor=dir==="asc"?1:-1;
+  const copy=data.slice();
+  copy.sort((a,b)=>{
+    const av=String(a[col]??"");
+    const bv=String(b[col]??"");
+    const an=Number(av.replace(",","."));
+    const bn=Number(bv.replace(",","."));
+    const aIsNum=!isNaN(an)&&av.trim()!=="";
+    const bIsNum=!isNaN(bn)&&bv.trim()!=="";
+    if(aIsNum && bIsNum) return factor*(an-bn);
+    return factor*av.localeCompare(bv,"pt-BR");
+  });
+  return copy;
+}
+
+function countBy(data, column){
+  const m=new Map();
+  for(const r of data){
+    const k=String(r[column]??"").trim() || "(vazio)";
+    m.set(k,(m.get(k)||0)+1);
+  }
+  return Array.from(m.entries()).sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],"pt-BR"));
+}
+
+/* ===== Charts (canvas) ===== */
+function devicePxRatio(){ return Math.max(1, Math.min(2.5, window.devicePixelRatio||1)); }
+function resizeCanvas(canvas){
+  const dpr=devicePxRatio();
+  const rect=canvas.getBoundingClientRect();
+  const w=Math.max(340, Math.floor(rect.width));
+  const h=Math.max(220, Math.floor(rect.height));
+  canvas.width=Math.floor(w*dpr);
+  canvas.height=Math.floor(h*dpr);
+  const ctx=canvas.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {w,h};
+}
+function clearCanvas(canvas){ const ctx=canvas.getContext("2d"); ctx.clearRect(0,0,canvas.width,canvas.height); }
+function roundRect(ctx,x,y,w,h,r){
+  const rr=Math.min(r,w/2,h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+rr,y);
+  ctx.arcTo(x+w,y,x+w,y+h,rr);
+  ctx.arcTo(x+w,y+h,x,y+h,rr);
+  ctx.arcTo(x,y+h,x,y,rr);
+  ctx.arcTo(x,y,x+w,y,rr);
+  ctx.closePath();
+}
+
+/* ---- Bar chart ---- */
+function drawBarChart({canvas, tooltipEl, labels=[], values=[], onClick, top="rgba(110,168,254,0.85)", bot="rgba(110,168,254,0.20)"}){
+  const ctx=canvas.getContext("2d");
+  let bars=[];
+  function render(){
+    const {w,h}=resizeCanvas(canvas);
+    clearCanvas(canvas);
+
+    const padL=14,padR=14,padT=14,padB=40;
+    const innerW=w-padL-padR, innerH=h-padT-padB;
+
+    ctx.save();
+    ctx.strokeStyle="rgba(233,238,252,0.10)";
+    ctx.lineWidth=1;
+    for(let i=0;i<=4;i++){
+      const y=padT+innerH*(i/4);
+      ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+innerW,y); ctx.stroke();
+    }
+    ctx.restore();
+
+    const maxV=Math.max(1,...values);
+    const n=Math.max(1,labels.length);
+    const gap=Math.max(6, Math.min(14, innerW*0.03));
+    const barW=Math.max(12, (innerW-gap*(n+1))/n);
+
+    bars=[];
+    for(let i=0;i<labels.length;i++){
+      const v=values[i];
+      const x=padL+gap+i*(barW+gap);
+      const bh=(v/maxV)*innerH;
+      const y=padT+innerH-bh;
+
+      const grad=ctx.createLinearGradient(0,y,0,y+bh);
+      grad.addColorStop(0,top);
+      grad.addColorStop(1,bot);
+      ctx.fillStyle=grad;
+      roundRect(ctx,x,y,barW,bh,10);
+      ctx.fill();
+
+      ctx.fillStyle="rgba(233,238,252,0.82)";
+      ctx.font="12px "+getComputedStyle(document.body).fontFamily;
+      const lab=labels[i];
+      const maxChars=Math.max(7, Math.floor(barW/7));
+      const shown=lab.length>maxChars ? lab.slice(0, Math.max(5,maxChars-1))+"…" : lab;
+      ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.fillText(shown, x+barW/2, padT+innerH+24);
+
+      ctx.fillStyle="rgba(233,238,252,0.92)";
+      ctx.font="12px var(--mono)";
+      ctx.fillText(String(v), x+barW/2, Math.max(padT+10, y-10));
+
+      bars.push({x,y,w:barW,h:bh,label:labels[i],value:v});
+    }
+  }
+  function hit(evt){
+    const r=canvas.getBoundingClientRect();
+    const x=evt.clientX-r.left, y=evt.clientY-r.top;
+    for(const b of bars) if(x>=b.x && x<=b.x+b.w && y>=b.y && y<=b.y+b.h) return b;
+    return null;
+  }
+  function showTT(evt,b){
+    if(!tooltipEl) return;
+    if(!b){ tooltipEl.style.display="none"; return; }
+    tooltipEl.style.display="block";
+    tooltipEl.innerHTML=`<div style="font-weight:650">${escapeHtml(b.label)}</div>
+      <div class="muted">Contagem: ${b.value}</div>
+      <div class="muted" style="margin-top:4px;">Clique para filtrar</div>`;
+    const wrap=tooltipEl.parentElement.getBoundingClientRect();
+    tooltipEl.style.left=(evt.clientX-wrap.left)+"px";
+    tooltipEl.style.top=(evt.clientY-wrap.top)+"px";
+  }
+  function onMove(evt){ const b=hit(evt); showTT(evt,b); canvas.style.cursor=b?"pointer":"default"; }
+  function onLeave(){ if(tooltipEl) tooltipEl.style.display="none"; canvas.style.cursor="default"; }
+  function onClickEvt(evt){ const b=hit(evt); if(b && onClick) onClick(b.label); }
+
+  render();
+  const ro=new ResizeObserver(()=>render());
+  ro.observe(canvas);
+  canvas.addEventListener("mousemove", onMove);
+  canvas.addEventListener("mouseleave", onLeave);
+  canvas.addEventListener("click", onClickEvt);
+
+  return { update(newL,newV){ labels=newL||[]; values=newV||[]; render(); } };
+}
+
+/* ---- Horizontal bars ---- */
+function drawHorizontalBars({canvas, tooltipEl, labels=[], values=[], onClick}){
+  const ctx=canvas.getContext("2d");
+  let rows=[];
+  function render(){
+    const {w,h}=resizeCanvas(canvas);
+    clearCanvas(canvas);
+
+    const pad=14;
+    const innerW=w-pad*2, innerH=h-pad*2;
+    const maxV=Math.max(1,...values);
+    const n=Math.max(1,labels.length);
+    const rowH=Math.max(18, Math.min(28, innerH/Math.max(10,n)));
+    const barH=Math.max(12, rowH-8);
+    const labelArea=Math.max(190, Math.min(360, innerW*0.58));
+    const barArea=innerW-labelArea-10;
+
+    ctx.textBaseline="middle";
+    ctx.font="12px "+getComputedStyle(document.body).fontFamily;
+    rows=[];
+
+    for(let i=0;i<labels.length;i++){
+      const y=pad + i*rowH + rowH/2;
+      const lab=labels[i];
+      const v=values[i];
+      const bw=(v/maxV)*barArea;
+      const x0=pad+labelArea;
+      const y0=y-barH/2;
+
+      ctx.fillStyle="rgba(233,238,252,0.86)";
+      ctx.textAlign="left";
+      const shown=lab.length>64 ? lab.slice(0,63)+"…" : lab;
+      ctx.fillText(shown, pad+2, y);
+
+      const grad=ctx.createLinearGradient(x0,0,x0+bw,0);
+      grad.addColorStop(0,"rgba(34,197,94,0.85)");
+      grad.addColorStop(1,"rgba(34,197,94,0.22)");
+      ctx.fillStyle=grad;
+      roundRect(ctx,x0,y0,bw,barH,10);
+      ctx.fill();
+
+      ctx.fillStyle="rgba(233,238,252,0.92)";
+      ctx.font="12px var(--mono)";
+      ctx.textAlign="right";
+      ctx.fillText(String(v), pad+labelArea+barArea, y);
+      ctx.font="12px "+getComputedStyle(document.body).fontFamily;
+
+      rows.push({i, y:y0, h:barH, label:lab, value:v});
+    }
+  }
+  function hit(evt){
+    const r=canvas.getBoundingClientRect();
+    const y=evt.clientY-r.top;
+    for(const row of rows) if(y>=row.y && y<=row.y+row.h) return row;
+    return null;
+  }
+  function showTT(evt,row){
+    if(!tooltipEl) return;
+    if(!row){ tooltipEl.style.display="none"; return; }
+    tooltipEl.style.display="block";
+    tooltipEl.innerHTML=`<div style="font-weight:650">${escapeHtml(row.label)}</div>
+      <div class="muted">Ocorrências: ${row.value}</div>
+      <div class="muted" style="margin-top:4px;">Clique para filtrar</div>`;
+    const wrap=tooltipEl.parentElement.getBoundingClientRect();
+    tooltipEl.style.left=(evt.clientX-wrap.left)+"px";
+    tooltipEl.style.top=(evt.clientY-wrap.top)+"px";
+  }
+  function onMove(evt){ const row=hit(evt); showTT(evt,row); canvas.style.cursor=row?"pointer":"default"; }
+  function onLeave(){ if(tooltipEl) tooltipEl.style.display="none"; canvas.style.cursor="default"; }
+  function onClickEvt(evt){ const row=hit(evt); if(row && onClick) onClick(row.label); }
+
+  render();
+  const ro=new ResizeObserver(()=>render());
+  ro.observe(canvas);
+  canvas.addEventListener("mousemove", onMove);
+  canvas.addEventListener("mouseleave", onLeave);
+  canvas.addEventListener("click", onClickEvt);
+
+  return { update(newL,newV){ labels=newL||[]; values=newV||[]; render(); } };
+}
+
+/* ---- Pie chart ---- */
+function drawPieChart({canvas, tooltipEl, labels=[], values=[], onClick}){
+  const ctx=canvas.getContext("2d");
+  const palette=[
+    "rgba(110,168,254,0.85)",  // azul
+    "rgba(34,197,94,0.85)",    // verde
+    "rgba(200,161,77,0.85)",   // dourado
+    "rgba(167,139,250,0.85)",
+    "rgba(56,189,248,0.85)",
+    "rgba(251,113,133,0.85)"
+  ];
+
+  function render(){
+    const {w,h}=resizeCanvas(canvas);
+    clearCanvas(canvas);
+
+    const pad=14;
+    const cw=w, ch=h;
+    const cx=cw/2, cy=ch/2;
+    const radius=Math.min(cw,ch)*0.35;
+
+    const total=values.reduce((a,b)=>a+b,0) || 1;
+    let start=-Math.PI/2;
+
+    // subtle ring
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius+10,0,Math.PI*2);
+    ctx.strokeStyle="rgba(0,0,0,.20)";
+    ctx.lineWidth=18;
+    ctx.stroke();
+    ctx.restore();
+
+    for(let i=0;i<labels.length;i++){
+      const v=values[i];
+      const ang=(v/total)*Math.PI*2;
+      const end=start+ang;
+
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,radius,start,end);
+      ctx.closePath();
+      ctx.fillStyle=palette[i%palette.length];
+      ctx.fill();
+
+      ctx.strokeStyle="rgba(233,238,252,0.08)";
+      ctx.lineWidth=2;
+      ctx.stroke();
+
+      start=end;
+    }
+
+    // legend
+    ctx.save();
+    ctx.font="12px "+getComputedStyle(document.body).fontFamily;
+    ctx.textBaseline="middle";
+    ctx.textAlign="left";
+    const lx=pad, ly=pad;
+    for(let i=0;i<labels.length;i++){
+      const y=ly+i*18;
+      ctx.fillStyle=palette[i%palette.length];
+      ctx.fillRect(lx, y-6, 10, 10);
+      ctx.fillStyle="rgba(233,238,252,0.86)";
+      ctx.fillText(`${labels[i]} (${values[i]})`, lx+14, y);
+    }
+    ctx.restore();
+  }
+
+  function hit(evt){
+    const r=canvas.getBoundingClientRect();
+    const x=evt.clientX-r.left;
+    const y=evt.clientY-r.top;
+
+    const cw=r.width, ch=r.height;
+    const cx=cw/2, cy=ch/2;
+    const radius=Math.min(cw,ch)*0.35;
+
+    const dx=x-cx, dy=y-cy;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist>radius) return null;
+
+    let ang=Math.atan2(dy,dx);
+    let a=ang - (-Math.PI/2);
+    while(a<0) a+=Math.PI*2;
+    while(a>=Math.PI*2) a-=Math.PI*2;
+
+    const total=values.reduce((p,c)=>p+c,0) || 1;
+    let acc=0;
+    for(let i=0;i<labels.length;i++){
+      const span=(values[i]/total)*Math.PI*2;
+      if(a>=acc && a<acc+span) return {label:labels[i], value:values[i], idx:i};
+      acc+=span;
+    }
+    return null;
+  }
+
+  function showTT(evt,s){
+    if(!tooltipEl) return;
+    if(!s){ tooltipEl.style.display="none"; return; }
+    tooltipEl.style.display="block";
+    tooltipEl.innerHTML=`<div style="font-weight:650">${escapeHtml(s.label)}</div>
+      <div class="muted">Contagem: ${s.value}</div>
+      <div class="muted" style="margin-top:4px;">Clique para filtrar</div>`;
+    const wrap=tooltipEl.parentElement.getBoundingClientRect();
+    tooltipEl.style.left=(evt.clientX-wrap.left)+"px";
+    tooltipEl.style.top=(evt.clientY-wrap.top)+"px";
+  }
+
+  function onMove(evt){ const s=hit(evt); showTT(evt,s); canvas.style.cursor=s?"pointer":"default"; }
+  function onLeave(){ if(tooltipEl) tooltipEl.style.display="none"; canvas.style.cursor="default"; }
+  function onClickEvt(evt){ const s=hit(evt); if(s && onClick) onClick(s.label); }
+
+  render();
+  const ro=new ResizeObserver(()=>render());
+  ro.observe(canvas);
+  canvas.addEventListener("mousemove", onMove);
+  canvas.addEventListener("mouseleave", onLeave);
+  canvas.addEventListener("click", onClickEvt);
+
+  return { update(newL,newV){ labels=newL||[]; values=newV||[]; render(); } };
+}
+
+/* ===== Map panel ===== */
+function renderMapPanel(){
+  const sel = state.filtered[state.selectedIndex];
+  if(!sel){
+    setText("mapObjTitle","Selecione um registro na tabela");
+    setText("mapObjMeta","—");
+    setText("mapRule","—");
+    document.getElementById("mapObjective").textContent="—";
+    document.getElementById("mapInstrument").textContent="—";
+    document.getElementById("mapSuggestions").innerHTML="";
+    return;
+  }
+
+  const area=sel["Área"];
+  const bloom=sel["Bloom"];
+  const miller=sel["Miller"];
+  const dim=sel["Dimensão"];
+  const risk=sel["Risco/Impacto"];
+  const objective=sel["Objetivo (formato observável)"];
+  const instrument=sel["Instrumento"];
+
+  setText("mapObjTitle", `${area} • ${bloom} • ${miller}`);
+  setText("mapObjMeta", `Dimensão: ${dim} • Risco/impacto: ${risk} • Competência (DCN): ${sel["Competência (DCN)"]}`);
+  setText("mapRule", `${bloom} + ${miller} (+ ${area})`);
+  document.getElementById("mapObjective").textContent = objective;
+  document.getElementById("mapInstrument").textContent = instrument;
+
+  const sug = suggestInstruments(area,bloom,miller);
+  const chips = sug.map(s => `<span class="chip"><span class="mini"></span>${escapeHtml(s)}</span>`).join("");
+  document.getElementById("mapSuggestions").innerHTML = chips;
+}
+
+/* ===== Table render ===== */
+function renderTable(){
+  const head=document.getElementById("theadRow");
+  const body=document.getElementById("tbody");
+  head.innerHTML="";
+  for(const c of state.columns){
+    const th=document.createElement("th");
+    th.textContent=c;
+    const s=document.createElement("span");
+    s.className="sort";
+    s.textContent=(state.sort.col===c) ? (state.sort.dir==="asc"?"▲":"▼") : "";
+    th.appendChild(s);
+    th.addEventListener("click", ()=>{
+      if(state.sort.col!==c){ state.sort.col=c; state.sort.dir="asc"; }
+      else state.sort.dir = (state.sort.dir==="asc") ? "desc" : "asc";
+      refresh();
+    });
+    head.appendChild(th);
+  }
+
+  const sorted = sortData(state.filtered);
+  const start=(state.page-1)*state.pageSize;
+  const pageRows=sorted.slice(start, start+state.pageSize);
+
+  body.innerHTML="";
+  pageRows.forEach((r, idx)=>{
+    const tr=document.createElement("tr");
+    // selection in filtered-space: map to overall selectedIndex in filtered
+    const filteredIndex = start + idx;
+    if(filteredIndex===state.selectedIndex) tr.classList.add("sel");
+
+    tr.addEventListener("click", ()=>{
+      state.selectedIndex = filteredIndex;
+      renderTable();      // update row highlight
+      renderMapPanel();   // update map
+    });
+
+    for(const c of state.columns){
+      const td=document.createElement("td");
+      const v=String(r[c]??"");
+      if(c==="Área" || c==="Bloom" || c==="Miller" || c==="Risco/Impacto"){
+        td.innerHTML = `<span class="tag">${escapeHtml(v || "—")}</span>`;
+      } else {
+        td.textContent = v;
+      }
+      tr.appendChild(td);
+    }
+    body.appendChild(tr);
+  });
+
+  const total=state.filtered.length;
+  const maxPage=Math.max(1, Math.ceil(total/state.pageSize));
+  setText("pageInfo", `Página ${state.page} / ${maxPage} • exibindo ${pageRows.length} de ${total}`);
+  setText("sortInfo", `Ordenação: ${state.sort.col ? (state.sort.col+" ("+state.sort.dir+")") : "—"}`);
+}
+
+/* ===== Metrics & filter options ===== */
+function renderMetricsAndFilters(){
+  setText("mTotal", state.data.length);
+  setText("mVisible", state.filtered.length);
+  setText("mComp", uniqueValues(state.data.map(r=>r["Competência (DCN)"])).length);
+  setText("mInstr", uniqueValues(state.data.map(r=>r["Instrumento"])).length);
+
+  const areas = uniqueValues(state.data.map(r=>r["Área"]));
+  setText("rowsInfo", `${state.filtered.length} / ${state.data.length} registros`);
+  setText("areasInfo", `${areas.length} áreas (Medicina, Direito, Multiprofissional Saúde)`);
+
+  // options
+  fillSelect("filterArea", areas);
+  fillSelect("filterBloom", BLOOM);
+  fillSelect("filterMiller", MILLER);
+  fillSelect("filterDim", uniqueValues(state.data.map(r=>r["Dimensão"])));
+  fillSelect("filterRisk", uniqueValues(state.data.map(r=>r["Risco/Impacto"])));
+
+  // preserve selection
+  setSelectValue("filterArea", state.filters.area);
+  setSelectValue("filterBloom", state.filters.bloom);
+  setSelectValue("filterMiller", state.filters.miller);
+  setSelectValue("filterDim", state.filters.dim);
+  setSelectValue("filterRisk", state.filters.risk);
+}
+
+/* ===== Charts ===== */
+let chartBloom=null, chartMiller=null, chartArea=null, chartInstr=null;
+
+function renderCharts(){
+  // Bloom bar (blue)
+  {
+    const pairs=countBy(state.filtered,"Bloom");
+    const labels=pairs.map(p=>p[0]);
+    const values=pairs.map(p=>p[1]);
+    if(!chartBloom){
+      chartBloom=drawBarChart({
+        canvas:document.getElementById("chartBloom"),
+        tooltipEl:document.getElementById("ttBloom"),
+        labels, values,
+        onClick:(label)=>{ state.filters.bloom = (label==="(vazio)") ? "" : label; setSelectValue("filterBloom", state.filters.bloom); state.page=1; refresh(); },
+        top:"rgba(110,168,254,0.85)",
+        bot:"rgba(110,168,254,0.20)"
+      });
+    } else chartBloom.update(labels, values);
+  }
+
+  // Miller pie (blue/green/gold palette)
+  {
+    const pairs=countBy(state.filtered,"Miller");
+    const labels=pairs.map(p=>p[0]);
+    const values=pairs.map(p=>p[1]);
+    if(!chartMiller){
+      chartMiller=drawPieChart({
+        canvas:document.getElementById("chartMiller"),
+        tooltipEl:document.getElementById("ttMiller"),
+        labels, values,
+        onClick:(label)=>{ state.filters.miller = (label==="(vazio)") ? "" : label; setSelectValue("filterMiller", state.filters.miller); state.page=1; refresh(); }
+      });
+    } else chartMiller.update(labels, values);
+  }
+
+  // Area bar (gold)
+  {
+    const pairs=countBy(state.filtered,"Área");
+    const labels=pairs.map(p=>p[0]);
+    const values=pairs.map(p=>p[1]);
+    if(!chartArea){
+      chartArea=drawBarChart({
+        canvas:document.getElementById("chartArea"),
+        tooltipEl:document.getElementById("ttArea"),
+        labels, values,
+        onClick:(label)=>{ state.filters.area = (label==="(vazio)") ? "" : label; setSelectValue("filterArea", state.filters.area); state.page=1; refresh(); },
+        top:"rgba(200,161,77,0.85)",
+        bot:"rgba(200,161,77,0.20)"
+      });
+    } else chartArea.update(labels, values);
+  }
+
+  // Top instruments horizontal (green)
+  {
+    const pairs=countBy(state.filtered,"Instrumento").slice(0,12);
+    const labels=pairs.map(p=>p[0]);
+    const values=pairs.map(p=>p[1]);
+    if(!chartInstr){
+      chartInstr=drawHorizontalBars({
+        canvas:document.getElementById("chartInstr"),
+        tooltipEl:document.getElementById("ttInstr"),
+        labels, values,
+        onClick:(label)=>{ state.filters.instr = (label==="(vazio)") ? "" : label; state.page=1; refresh(); }
+      });
+    } else chartInstr.update(labels, values);
+  }
+}
+
+/* ===== Refresh ===== */
+function refresh(){
+  applyFilters();
+  renderMetricsAndFilters();
+  renderCharts();
+  renderTable();
+  renderMapPanel();
+}
+
+/* ===== Reset ===== */
+function resetAll(){
+  state.filters = { q:"", area:"", bloom:"", miller:"", dim:"", risk:"", instr:"" };
+  state.page=1;
+  state.sort={ col:null, dir:"asc" };
+  state.selectedIndex=0;
+
+  document.getElementById("globalSearch").value="";
+  setSelectValue("filterArea","");
+  setSelectValue("filterBloom","");
+  setSelectValue("filterMiller","");
+  setSelectValue("filterDim","");
+  setSelectValue("filterRisk","");
+  refresh();
+}
+
+/* ===== Events ===== */
+function debounce(fn, ms=180){
+  let t=null;
+  return (...args)=>{ if(t) clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
+}
+
+document.getElementById("btnReset").addEventListener("click", resetAll);
+
+document.getElementById("globalSearch").addEventListener("input", debounce((ev)=>{
+  state.filters.q = ev.target.value || "";
+  state.page=1;
+  refresh();
+}, 180));
+
+document.getElementById("filterArea").addEventListener("change", (ev)=>{ state.filters.area=ev.target.value||""; state.page=1; refresh(); });
+document.getElementById("filterBloom").addEventListener("change", (ev)=>{ state.filters.bloom=ev.target.value||""; state.page=1; refresh(); });
+document.getElementById("filterMiller").addEventListener("change", (ev)=>{ state.filters.miller=ev.target.value||""; state.page=1; refresh(); });
+document.getElementById("filterDim").addEventListener("change", (ev)=>{ state.filters.dim=ev.target.value||""; state.page=1; refresh(); });
+document.getElementById("filterRisk").addEventListener("change", (ev)=>{ state.filters.risk=ev.target.value||""; state.page=1; refresh(); });
+
+document.getElementById("pageSize").addEventListener("change", (ev)=>{
+  state.pageSize=Number(ev.target.value||25);
+  state.page=1;
+  refresh();
+});
+document.getElementById("prevPage").addEventListener("click", ()=>{
+  state.page=Math.max(1, state.page-1);
+  refresh();
+});
+document.getElementById("nextPage").addEventListener("click", ()=>{
+  const maxPage=Math.max(1, Math.ceil(state.filtered.length/state.pageSize));
+  state.page=Math.min(maxPage, state.page+1);
+  refresh();
+});
+
+/* ===== Boot ===== */
+(function init(){
+  state.data = buildDataset();
+  setText("updatedInfo", `Atualizado: ${nowStr()}`);
+  state.selectedIndex=0;
+  refresh();
+})();
+</script>
+</body>
+</html>
